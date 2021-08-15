@@ -1,21 +1,37 @@
 import os
 import glob
 import psycopg2
+import psycopg2.extras as extras
 import pandas as pd
 from sql_queries import *
 
 
 def process_song_file(cur, filepath):
     # open song file
-    df = 
+    df = pd.read_json(filepath,lines=True)
+
+    # get next file Id
+    FileName = os.path.basename(filepath)
+    cur.execute(file_next_Id_select, [FileName])
+    results = cur.fetchone()
+    Next_File_Id = results[0]
 
     # insert song record
-    song_data = 
-    cur.execute(song_table_insert, song_data)
-    
+    song_data = df.loc[:, ['song_id', 'title', 'artist_id', 'year', 'duration']]
+    song_data = song_data.drop_duplicates()
+    song_data['FILE_ID'] = Next_File_Id
+    song_nn = [tuple(i) for i in song_data.to_numpy()]
+    extras.execute_values(cur, song_table_insert, song_nn)
+
     # insert artist record
-    artist_data = 
-    cur.execute(artist_table_insert, artist_data)
+    artist_data = df.loc[:, ['artist_id', 'artist_name', 'artist_location', 'artist_latitude', 'artist_longitude']]
+    artist_data = artist_data.drop_duplicates()
+    artist_data['FILE_ID'] = Next_File_Id
+    art = [tuple(i) for i in artist_data.to_numpy()]
+    extras.execute_values(cur, artist_table_insert, art)
+
+    #insert file information into files
+    cur.execute(file_table_insert, (Next_File_Id, FileName, 'SNG'))
 
 
 def process_log_file(cur, filepath):
