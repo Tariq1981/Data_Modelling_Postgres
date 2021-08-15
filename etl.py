@@ -5,6 +5,10 @@ import psycopg2.extras as extras
 import pandas as pd
 from sql_queries import *
 
+def insert_file_metadata(cur,fileId,fileName,type):
+    # insert file information into files
+    cur.execute(file_table_insert, (fileId, fileName, type))
+
 
 def process_song_file(cur, filepath):
     # get next file Id
@@ -29,14 +33,13 @@ def process_song_file(cur, filepath):
     artist_data['FILE_ID'] = Next_File_Id
     art = [tuple(i) for i in artist_data.to_numpy()]
     extras.execute_values(cur, artist_table_insert, art)
-
-    #insert file information into files
-    cur.execute(file_table_insert, (Next_File_Id, FileName, 'SNG'))
+    insert_file_metadata(cur,Next_File_Id,FileName,"SNG")
 
 
 def process_log_file(cur, filepath):
     #get next File Id
     FileName = os.path.basename(filepath)
+    #print(FileName)
     cur.execute(file_next_Id_select, [FileName])
     results = cur.fetchone()
     Next_File_Id = results[0]
@@ -62,9 +65,11 @@ def process_log_file(cur, filepath):
     extras.execute_values(cur, time_table_insert, tim)
 
     # load user table
-    user_df = df.loc[:, ["userId", "firstName", "lastName", "gender", "level"]]
+    user_df = df.loc[:, ["userId", "firstName", "lastName", "gender", "level","ts"]]
     user_df = user_df.drop_duplicates()
     user_df['FILE_ID'] = Next_File_Id
+    user_df["rank"] = user_df.groupby("userId")['ts'].rank(ascending=False)
+    user_df = user_df.loc[user_df["rank"] == 1, ["userId", "firstName", "lastName", "gender", "level","FILE_ID"]]
 
     # insert user records
     users = [tuple(i) for i in user_df.to_numpy()]
@@ -72,7 +77,6 @@ def process_log_file(cur, filepath):
 
     # insert songplay records
     for index, row in df.iterrows():
-        
         # get songid and artistid from song and artist tables
         cur.execute(song_select, (row.song, row.artist, row.length))
         results = cur.fetchone()
@@ -86,6 +90,7 @@ def process_log_file(cur, filepath):
         songplay_data = (row.ts,row.userId,row.level,songid,artistid,row.sessionId,row.location,
                          row.userAgent,Next_File_Id)
         cur.execute(songplay_table_insert, songplay_data)
+    insert_file_metadata(cur, Next_File_Id, FileName, "LOG")
 
 
 def process_data(cur, conn, filepath, func):
