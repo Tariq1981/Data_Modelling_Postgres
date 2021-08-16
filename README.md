@@ -15,8 +15,65 @@ One of their goals to know what songs are being listened by their users.
    - START_TIME: The timestamp in millisecond for the transaction.
    - USER_ID: The user id for the user who generated this transaction.
      It is a foreign key from the USERS table.
-   - LEVEL: The type of the user either free or paid. 
+   - LEVEL: The type of the user either free or paid. It holds the 
+     level of the user at the timestamp of this transaction.  
    - SONG_ID: The id of the song which has been played by the user.
      It is a foreign key from the SONGS table.
    - ARTIST_ID: The is of the artist for the song played.
      It is a foreign key from ARTISTS table.
+   - SESSION_ID: Id for the web session which user was using and resulted
+     in generating this transaction.
+   - USER_AGENT: text which specify the OS type and version and browser     
+     version and type.
+   - FILE_ID: Id for the file which is used in loading 
+     this row. It is a foreign key from table FILES.  
+- ARTISTS: A table which holds list of artists and any information
+  related to them.
+  The following are the columns and their description:
+  - ARTIST_ID: Unique id for the artist in this table.
+  - NAME: Name of the artist.
+  - LOCATION: The location of the artist geographically.
+  - LATITUDE: The latitude of for the artist location. 
+  - LONGITUDE: The longitude of the artist location.
+  - FILE_ID: Id for the file which is used in loading this row. 
+    It is a foreign key from table FILES.
+- SONGS: This table holds list of songs and any information related to them.
+  The following are the columns and their description:
+  - SONG_ID: Unique id for the song in thi table.
+  - TITLE: The title of name of the song.
+  - ARTIST_ID: The id of the artist of this song.
+    It is a foreign key from ARTISTS table.
+  - YEAR: The production year of this song. 
+  - DURATION: The playing duration of the song.
+  - FILE_ID: Id for the file which is used in loading this row. 
+    It is a foreign key from table FILES.
+- TIME: It is a table for all the timestamps appeared in the transactions 
+  loaded in the SONGPLAYS table. It contains addition columns
+  derived from the timestamp column itself. These can be used to get 
+  insights on different levels (hour,day,week,weekday,month,year).
+  
+- USERS: This table holds all the users who caused in generating any song 
+  playing transaction.
+  The following are the columns and their description:
+  - USER_ID: Unique Id for the user in the table.
+  - FIRST_NAME:The first name for the user.
+  - LAST_NAME: The last name for the user.
+  - GENDER: the gender of the user(M:male,F:female)
+  - LEVEL: The type of the user either free or paid. This column holds the
+    latest level for the user appeared into the last log file loaded.
+  - FILE_ID: Id for the file which is used in loading this row. 
+    It is a foreign key from table FILES.
+
+- FILES: This table hold all the files which had been loaded in this model.
+  This table has no relation to the business of the model itself. 
+  It is a metadata table.It has been added as type of traceability for 
+  the source file of each row in the model to help in investigating 
+  in any data quality issue from the source.
+  The following are the columns and their description:
+  - FILE_ID: Unique id for the row in this table.
+  - FILE_NAME: Name of the file. 
+  - FILE_TYPE: Type of the file(SNG:Song file,LOG:Log file).
+  - INSERT_UPDATE_DTTM: Timestamp for the loading the file. Either it is
+    the first time to load or it is loaded again. This timestamp is updated
+    everytime the file is loaded. This can help in knowing if the file has
+    been loaded or reloaded.
