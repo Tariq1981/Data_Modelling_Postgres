@@ -121,8 +121,8 @@ One of their goals to know what songs are being listened by their users.
   ON U.USER_ID=X.USER_ID
   WHERE R_HOUR=1;
 
-- Getting the count of transactions per gender. The result is that the females 
-  used the app in that month more than males.
+- Getting the count of transactions per gender. Females were the heavy users for the 
+  app during that month.
   - **Query:**
     
     SELECT GEnder,count(*) FROM songplays p
