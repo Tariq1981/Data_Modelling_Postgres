@@ -95,31 +95,31 @@ One of their goals to know what songs are being listened by their users.
   to target them by a campaign by sending them promocodes or something like this.
   - **Query:**
   
-  SELECT U.USER_ID,U.FIRST_NAME,U.LAST_NAME,X.HOUR Peak_Hour_User
-  FROM 
-  (
-      SELECT X.user_id,Y.hour,ROW_NUMBER()OVER(PARTITION BY Y.USER_ID ORDER BY Y.cnt DESC) R_HOUR
-      FROM
+      SELECT U.USER_ID,U.FIRST_NAME,U.LAST_NAME,X.HOUR Peak_Hour_User
+      FROM 
       (
-          SELECT user_ID,count(*) cnt
-          FROM songplays p
-          group by user_id
-          order by cnt desc
-          LIMIT 10
+          SELECT X.user_id,Y.hour,ROW_NUMBER()OVER(PARTITION BY Y.USER_ID ORDER BY Y.cnt DESC) R_HOUR
+          FROM
+          (
+              SELECT user_ID,count(*) cnt
+              FROM songplays p
+              group by user_id
+              order by cnt desc
+              LIMIT 10
+          ) X
+          INNER JOIN
+          (
+              SELECT user_Id,t.hour,count(*) cnt
+              FROM songplays p
+              INNER JOIN TIME t
+              ON p.start_time=t.START_TIME
+              group by user_id,t.hour
+          )Y
+          ON X.user_id = Y.user_Id
       ) X
-      INNER JOIN
-      (
-          SELECT user_Id,t.hour,count(*) cnt
-          FROM songplays p
-          INNER JOIN TIME t
-          ON p.start_time=t.START_TIME
-          group by user_id,t.hour
-      )Y
-      ON X.user_id = Y.user_Id
-  ) X
-  INNER JOIN USERS U
-  ON U.USER_ID=X.USER_ID
-  WHERE R_HOUR=1;
+      INNER JOIN USERS U
+      ON U.USER_ID=X.USER_ID
+      WHERE R_HOUR=1;
 
 - Getting the count of transactions per gender. Females were the heavy users for the 
   app during that month.
@@ -130,4 +130,16 @@ One of their goals to know what songs are being listened by their users.
     ON p.user_Id = u.user_Id
     group by gender;
   
+- Getting the top 10 artists whom their songs are played by the app users. 
+  Because the data is subset, so there is only one row in songplays which contains
+  artist_Id and song_Id:
+  - **Query:**
+    
+    SELECT name,count(*)cnt
+    FROM songplays p
+    inner join ARTISTS a
+    on a.artist_Id=p.artist_id
+    group by name
+    ORDER BY cnt desc
+    LIMIT 10;
 
