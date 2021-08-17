@@ -79,6 +79,26 @@ One of their goals to know what songs are being listened by their users.
     everytime the file is loaded. This can help in knowing if the file has
     been loaded or reloaded.
 
+## **Files and description**
+ - **[create_tables.py](/create_tables.py)**: It create the database 'sparkifydb'. Then, it creates
+the tables: USERS,SONGPLAYS,SONGS,TIME,ARTISTS and FILES 
+ 
+ - **etl.py**:It runs the whole ETL process. It processes all the song files to 
+load SONGS,ARTISTS tables. It processes all the log files to load SONGPLAYS,
+USERS and TIME tables. After each process it logs some metadata about the file
+   which is being loaded in FILES table.
+   
+ - **etl.ipynb**
+   
+
+## **Sequence of execution**
+ 1- Execute create_tables.py to create the database, and the required tables.
+
+ 2- Execute etl.py to process the files in data/log_data and data/song_data.
+    It will load the tables SONGS,ARTISTS,SONGPLAYS,TIME and USERS. 
+    It will also update the table FILES with metadata about the files which are processed.
+
+
 ## **Sample Queries:**
 - Getting a trend line for the total usage per hour.
   
