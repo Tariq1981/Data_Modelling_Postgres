@@ -83,12 +83,21 @@ One of their goals to know what songs are being listened by their users.
  - **[create_tables.py](/create_tables.py)**: It create the database 'sparkifydb'. Then, it creates
 the tables: USERS,SONGPLAYS,SONGS,TIME,ARTISTS and FILES 
  
- - **etl.py**:It runs the whole ETL process. It processes all the song files to 
+ - **[sql_queries.py](/sql_queries.py)**: This python script contains all the queries
+which are related to creating or dropping the tables mentioned above. It also 
+   contains the insert statements which are used in populating these tables.
+
+ - **[etl.py](/etl.py)**: It runs the whole ETL process. It processes all the song files to 
 load SONGS,ARTISTS tables. It processes all the log files to load SONGPLAYS,
 USERS and TIME tables. After each process it logs some metadata about the file
    which is being loaded in FILES table.
    
- - **etl.ipynb**
+ - **[etl.ipynb](/etl.ipynb)**: It is notebook which contains step by step for the 
+etl process but on sample file for each process.
+   
+ - **[test.ipynb](/test.ipynb)**: This notebook can be used to test if the tables
+have been populated or not using either [etl.py](/etl.py) or [etl.ipynb](/etl.ipynb)
+
    
 
 ## **Sequence of execution**
