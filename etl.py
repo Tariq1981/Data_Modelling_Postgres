@@ -6,11 +6,35 @@ import pandas as pd
 from sql_queries import *
 
 def insert_file_metadata(cur,fileId,fileName,type):
+    """
+        Description: This function save the file metadata which is being processed into FILES table
+
+        Arguments:
+            cur: the cursor object.
+            fileId: A unique identifier for the file to be saved.
+            fileName: The file name.
+            type: The type of file which is being processed ('SNG','LOG')
+
+        Returns:
+            None
+    """
     # insert file information into files
     cur.execute(file_table_insert, (fileId, fileName, type))
 
 
 def process_song_file(cur, filepath):
+    """
+        Description: This function is responsible for processing the song files and populate
+        SONGS and ARTISTS tables
+
+        Arguments:
+            cur: the cursor object.
+            filepath: The full path for the song file to be processed
+
+        Returns:
+            None
+    """
+
     # get next file Id
     FileName = os.path.basename(filepath)
     cur.execute(file_next_Id_select, [FileName])
@@ -37,6 +61,18 @@ def process_song_file(cur, filepath):
 
 
 def process_log_file(cur, filepath):
+    """
+        Description: This function is responsible for processing the log files and populate
+        USERS,TIME and SONGPLAYS tables
+
+        Arguments:
+            cur: the cursor object.
+            filepath: The full path for the log file to be processed
+
+        Returns:
+            None
+    """
+
     #get next File Id
     FileName = os.path.basename(filepath)
     #print(FileName)
@@ -94,6 +130,20 @@ def process_log_file(cur, filepath):
 
 
 def process_data(cur, conn, filepath, func):
+    """
+        Description: This function is a generic one which gets all the files with extintion "json"
+        in specific path specified in 'filepath' argument. It loops on this list and call
+        function specified in 'func' argument to process this specific file.
+
+        Arguments:
+            cur: the cursor object.
+            conn: connection to the database.
+            filepath: The path for for the json files which will be processed by 'func'
+            func: The function which will process each file in the list of the files in 'filepath' argument
+
+        Returns:
+            None
+    """
     # get all files matching extension from directory
     all_files = []
     for root, dirs, files in os.walk(filepath):
@@ -115,8 +165,10 @@ def process_data(cur, conn, filepath, func):
 def main():
     conn = psycopg2.connect("host=127.0.0.1 dbname=sparkifydb user=student password=student")
     cur = conn.cursor()
-
+    #process the song files
     process_data(cur, conn, filepath='data/song_data', func=process_song_file)
+
+    # process the log files
     process_data(cur, conn, filepath='data/log_data', func=process_log_file)
 
     conn.close()
